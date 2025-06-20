@@ -463,7 +463,6 @@ scheduler(void)
   c->proc = 0;
 
   for(;;){
-    // Enable interrupts on this core.
     intr_on();
 
     struct proc *proc_to_run = 0;
@@ -504,7 +503,6 @@ scheduler(void)
 
     } else {
       intr_on();
-      asm volatile("wfi");
     }
   }
 }

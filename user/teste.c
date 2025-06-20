@@ -1,34 +1,37 @@
 #include "kernel/types.h"
 #include "user/user.h"
 
-#define N 4
+#define N 3
 
-int child[N];
-
-void waste_time(){
-  volatile unsigned long long i;
+void waste_time() {
   printf("start\n");
-  for (i = 0; i < 3000000000ULL; ++i);
+  
+  volatile unsigned long long i;
+  for (i = 0; i < 1000000000ULL; ++i);
+  
   printf("stop\n");
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-int n, pid;
-for(n=0; n<N; n++){
-   pid = fork();
-   if(pid == 0) {
-     waste_time();
-     exit(0);
-   }
-   else child[n] = pid;
-}
+  int n, pid;
+  int tickets_para_dar[] = {150, 100, 50};
 
-for(n=0; n<N; n++){
-   pid = wait(0);
-   printf("Child pid = %d finished!", pid);
-}
-return 0;
+  for(n = 0; n < N; n++) {
+    pid = fork();
+    if(pid == 0) {
+      if (settickets(tickets_para_dar[n]) < 0) {
+          printf("Erro: settickets() falhou para o PID %d\n", getpid());
+      }
+      waste_time();
+      exit(0);
+    }
+  }
 
+  for(n = 0; n < N; n++) {
+    int finished_pid = wait(0);
+    printf("Child pid = %d finished!\n", finished_pid);
+  }
+
+  exit(0);
 }
